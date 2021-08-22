@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Tbody,
     Modal,
@@ -11,22 +11,54 @@ import {
     useDisclosure,
     Button,
 } from "@chakra-ui/react"
+import firebase from '../backend/Firestore';
 import WordRow from './WordRow'
 
 function WordList() {
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const [words, setWords] = useState([])
+    const [modalWord, setModalWord] = useState({});
+
+    useEffect(() => {
+        fetchWords().then((docs) => {
+            let wordList = []
+            docs.forEach((doc) => {
+                const wordObj = doc.data()
+                wordList.push(wordObj);
+            })
+            setWords(wordList)
+        })
+    }, [])
+
+    const fetchWords = async () => {
+        const ref = firebase.firestore().collection('words')
+        const words = await ref.get()
+        return words.docs;
+    }
+
+    const openModal = (wordObj) => {
+        setModalWord(wordObj);
+        onOpen();
+    }
+
     return (
         <>
             <Tbody>
-                <WordRow word="vivek" meaning="vivek" description="not needed!" openModal={onOpen} />
+                {
+                    words.map((wordObj, index) => {
+                        return <WordRow key={index} word={wordObj.word} meaning={wordObj.meaning[0]} description={wordObj.description[0]} openModal={() => {
+                            openModal(wordObj)
+                        }} />
+                    })
+                }
             </Tbody>
             <Modal size="2xl" isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>Modal Title</ModalHeader>
+                    <ModalHeader>{modalWord.word}</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        aadad
+                        {modalWord.description}
                     </ModalBody>
                     <ModalFooter>
                         <Button colorScheme="blue" mr={3} onClick={onClose}>
