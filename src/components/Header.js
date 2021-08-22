@@ -1,5 +1,6 @@
 import { Box, Flex, Spacer, Heading, Button } from '@chakra-ui/react'
 import React from 'react'
+import SearchBar from './SearchBar'
 
 function Header() {
     return (
@@ -7,6 +8,10 @@ function Header() {
             <Flex align="center">
                 <Box p="2">
                     <Heading size="lg">GRE Words</Heading>
+                </Box>
+                <Spacer />
+                <Box w="40%">
+                    <SearchBar />
                 </Box>
                 <Spacer />
                 <Box>
