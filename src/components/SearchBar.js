@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { InputGroup, InputLeftElement, Input, InputRightElement, Button } from '@chakra-ui/react';
+import { InputGroup, InputLeftElement, Input, InputRightElement, Kbd } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 
 function SearchBar() {
@@ -33,9 +33,7 @@ function SearchBar() {
             />
             <Input id="search-input" bg="white" shadow="md" color="teal" focusBorderColor="teal.500" type="text" placeholder="Search Word" />
             <InputRightElement >
-                <Button color="teal.500" fontSize="lg" size="sm" variant="unstyled" borderRadius="md" fontWeight="semibold">
-                    /
-                </Button>
+                <Kbd bg="teal.100" borderColor="teal.300" color="teal.400">/</Kbd>
             </InputRightElement>
         </InputGroup>
     )
