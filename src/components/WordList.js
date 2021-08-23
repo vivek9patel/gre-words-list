@@ -18,6 +18,7 @@ function WordList() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [words, setWords] = useState([])
     const [modalWord, setModalWord] = useState({});
+    const [loading, setLoading] = useState(true)
     const ref = firebase.firestore().collection('words')
 
     useEffect(() => {
@@ -40,6 +41,7 @@ function WordList() {
             })
 
             setWords(wordList)
+            setLoading(false)
         })
         // eslint-disable-next-line
     }, [])
@@ -51,30 +53,38 @@ function WordList() {
 
     return (
         <>
-            <Tbody>
-                {
-                    words.map((wordObj, index) => {
-                        return <WordRow key={index} word={wordObj.word} meaning={wordObj.meaning[0]} description={wordObj.description[0]} openModal={() => {
-                            openModal(wordObj)
-                        }} />
-                    })
-                }
-            </Tbody>
-            <Modal size="2xl" isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>{modalWord.word}</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        {modalWord.description}
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={onClose}>
-                            Close
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            {
+                loading ?
+                    <>
+                    </>
+                    :
+                    <>
+                        <Tbody>
+                            {
+                                words.map((wordObj, index) => {
+                                    return <WordRow key={index} word={wordObj.word} meaning={wordObj.meaning[0]} description={wordObj.description[0]} openModal={() => {
+                                        openModal(wordObj)
+                                    }} />
+                                })
+                            }
+                        </Tbody>
+                        <Modal size="2xl" isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+                            <ModalOverlay />
+                            <ModalContent>
+                                <ModalHeader>{modalWord.word}</ModalHeader>
+                                <ModalCloseButton />
+                                <ModalBody>
+                                    {modalWord.description}
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button colorScheme="blue" mr={3} onClick={onClose}>
+                                        Close
+                                    </Button>
+                                </ModalFooter>
+                            </ModalContent>
+                        </Modal>
+                    </>
+            }
         </>
     )
 }
