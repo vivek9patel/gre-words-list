@@ -1,4 +1,4 @@
-import { Box, Flex, Spacer, Heading, Button, CircularProgress, Image } from '@chakra-ui/react'
+import { Box, Flex, Spacer, Heading, Button, CircularProgress, Image, Tooltip } from '@chakra-ui/react'
 import React from 'react';
 import SearchBar from './SearchBar';
 import { useAuth0 } from "@auth0/auth0-react";
@@ -20,15 +20,18 @@ function Header() {
                     <Flex align="center" justify="flex-end">
                         {
                             isAuthenticated &&
-                            <Image
-                                cursor="pointer"
-                                borderRadius="full"
-                                boxSize="35px"
-                                src={user.picture}
-                                alt={user.name}
-                                mr="15px"
-                                title={user.name}
-                            />
+                            <Tooltip hasArrow label={user.email} bg="gray.100" color="black">
+                                <Image
+                                    cursor="pointer"
+                                    borderRadius="full"
+                                    boxSize="35px"
+                                    src={user.picture}
+                                    alt={user.name}
+                                    mr="15px"
+                                    title={user.name}
+                                />
+
+                            </Tooltip>
                         }
                         <Flex align="center" justify="center">
                             {

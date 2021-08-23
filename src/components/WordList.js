@@ -18,23 +18,31 @@ function WordList() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [words, setWords] = useState([])
     const [modalWord, setModalWord] = useState({});
+    const ref = firebase.firestore().collection('words')
 
     useEffect(() => {
-        fetchWords().then((docs) => {
+        ref.onSnapshot((snapshot) => {
             let wordList = []
-            docs.forEach((doc) => {
+            snapshot.docs.forEach((doc) => {
                 const wordObj = doc.data()
                 wordList.push(wordObj);
             })
+
+            // sort wordList by wordList.word
+            wordList.sort((a, b) => {
+                if (a.word < b.word) {
+                    return -1;
+                } else if (a.word > b.word) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            })
+
             setWords(wordList)
         })
+        // eslint-disable-next-line
     }, [])
-
-    const fetchWords = async () => {
-        const ref = firebase.firestore().collection('words')
-        const words = await ref.get()
-        return words.docs;
-    }
 
     const openModal = (wordObj) => {
         setModalWord(wordObj);

@@ -10,7 +10,7 @@ import WordList from './WordList'
 
 function WordsTable() {
     return (
-        <Box my="4" mx="4" p="4" bg="white" borderRadius="md" shadow="lg">
+        <Box mb="4" mx="4" p="4" bg="white" borderRadius="md" shadow="lg">
             <Table size="lg">
                 <TableCaption>created by &nbsp;
                     <Link color="teal.500" href="https://www.linkedin.com/in/vivek9patel/" isExternal>

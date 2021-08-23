@@ -6,6 +6,11 @@ import {
 } from "@chakra-ui/react"
 
 function WordRow({ word, meaning, description, openModal }) {
+
+    const deleteWord = () => {
+        // delete word from firebase
+    }
+
     return (
         <>
             <Tr px="10">
