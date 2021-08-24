@@ -17,14 +17,17 @@ import {
     Text,
     Tooltip
 } from "@chakra-ui/react"
+import { AttachmentIcon } from '@chakra-ui/icons'
 import firebase from '../backend/Firestore';
-import WordRow from './WordRow'
+import WordRow from './WordRow';
+import { getAudioUrl } from 'google-tts-api';
 
 function WordList() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [words, setWords] = useState([])
     const [modalWord, setModalWord] = useState({});
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
+    const [wordUrl, setWordUrl] = useState(null);
     const ref = firebase.firestore().collection('words')
     const toast = useToast();
 
@@ -57,6 +60,13 @@ function WordList() {
     }, [])
 
     const openModal = (wordObj) => {
+        const url = getAudioUrl(wordObj.word, {
+            lang: 'en',
+            slow: false,
+            host: 'https://translate.google.com',
+        });
+        console.log(url);
+        setWordUrl(url);
         setModalWord(wordObj);
         onOpen();
     }
@@ -74,6 +84,10 @@ function WordList() {
 
     const openWordInfo = word => {
         window.open(`https://www.google.com/search?q=${word}+meaning`);
+    }
+
+    const playWord = () => {
+        window.open(wordUrl)
     }
 
     return (
@@ -96,15 +110,21 @@ function WordList() {
                         <Modal size="2xl" isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
                             <ModalOverlay />
                             <ModalContent>
-                                <ModalHeader>{modalWord.word}</ModalHeader>
+                                <ModalHeader display="flex" alignItems="center">
+                                    {modalWord.word}
+                                    <Tooltip placement="right" label={`click to play pronounciation`} bg="gray.100" color="black">
+                                        <AttachmentIcon onClick={playWord} ml="2" size="sm" cursor="pointer" />
+                                    </Tooltip>
+
+                                </ModalHeader>
                                 <ModalCloseButton />
                                 <ModalBody>
                                     <HStack spacing={2}>
                                         {
                                             modalWord.synonyms && modalWord.synonyms.map((synonym, idx) => {
                                                 return (
-                                                    <Tooltip hasArrow placement="right" label={`click to view ${synonym} meaning`} bg="white" color="black">
-                                                        <Tag onClick={() => { openWordInfo(synonym) }} cursor="pointer" key={idx} size="md" variant="subtle" colorScheme="teal">
+                                                    <Tooltip key={idx} hasArrow placement="right" label={`click to view ${synonym} meaning`} bg="white" color="black">
+                                                        <Tag onClick={() => { openWordInfo(synonym) }} cursor="pointer" size="md" variant="subtle" colorScheme="teal">
                                                             <TagLabel fontSize="sm">{synonym}</TagLabel>
                                                         </Tag>
                                                     </Tooltip>
