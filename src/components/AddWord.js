@@ -22,10 +22,30 @@ function AddWord() {
 
     const addWord = () => {
         // get values from input refs
-        const word = wordInput.current.value
-        const description = [descInput.current.value]
-        const meaning = [meanInput.current.value]
+        const word = wordInput.current.value.trim()
+        const description = [descInput.current.value.trim()]
+        const meaning = [meanInput.current.value.trim()]
         const links = [null];
+
+        if (word.length === 0) {
+            wordInput.current.focus();
+            toast({
+                title: `Enter a Word!`,
+                status: 'warning',
+                isClosable: true,
+            })
+            return;
+        }
+
+        if (meaning[0].length === 0) {
+            meanInput.current.focus();
+            toast({
+                title: `Enter ${word}'s meaning!`,
+                status: 'warning',
+                isClosable: true,
+            })
+            return;
+        }
 
         // add data in firebase
         const docRef = firebase.firestore().collection('words').doc()
