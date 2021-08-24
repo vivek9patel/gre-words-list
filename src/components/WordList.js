@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import {
     Tbody,
     Modal,
@@ -21,6 +21,7 @@ import { AttachmentIcon } from '@chakra-ui/icons'
 import firebase from '../backend/Firestore';
 import WordRow from './WordRow';
 import { getAudioUrl } from 'google-tts-api';
+import AdminContext from '../contexts/AdminContext';
 
 function WordList() {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -30,6 +31,8 @@ function WordList() {
     const [wordUrl, setWordUrl] = useState(null);
     const ref = firebase.firestore().collection('words')
     const toast = useToast();
+
+    const { isAdmin } = useContext(AdminContext);
 
     useEffect(() => {
         ref.onSnapshot((snapshot) => {
@@ -72,14 +75,16 @@ function WordList() {
     }
 
     const deleteWord = (modalWord) => {
-        onClose();
-        ref.doc(modalWord.id).delete().then(() => {
-            toast({
-                title: `${modalWord.word} Deleted!`,
-                status: 'success',
-                isClosable: true,
+        if (isAdmin()) {
+            onClose();
+            ref.doc(modalWord.id).delete().then(() => {
+                toast({
+                    title: `${modalWord.word} Deleted!`,
+                    status: 'success',
+                    isClosable: true,
+                })
             })
-        })
+        }
     }
 
     const openWordInfo = word => {

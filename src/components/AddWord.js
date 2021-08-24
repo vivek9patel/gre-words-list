@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useContext } from 'react'
 import {
     Button, ButtonGroup, IconButton, Modal, useDisclosure, FormControl, FormLabel, Input,
     ModalOverlay,
@@ -10,7 +10,8 @@ import {
     useToast
 } from '@chakra-ui/react';
 import firebase from '../backend/Firestore';
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon } from '@chakra-ui/icons';
+import AdminContext from '../contexts/AdminContext';
 
 function AddWord() {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -19,7 +20,15 @@ function AddWord() {
     const wordInput = useRef()
     const descInput = useRef()
     const meanInput = useRef()
-    const synoInput = useRef()
+    const synoInput = useRef();
+
+    const { isAdmin } = useContext(AdminContext);
+
+    const openModal = () => {
+        if (isAdmin()) {
+            onOpen();
+        }
+    }
 
     const addWord = () => {
         // get values from input refs
@@ -78,7 +87,7 @@ function AddWord() {
 
     return (
         <>
-            <ButtonGroup onClick={onOpen} size="sm" isAttached variant="outline">
+            <ButtonGroup onClick={openModal} size="sm" isAttached variant="outline">
                 <Button bg="white" mr="-px">Add Word</Button>
                 <IconButton bg="white" aria-label="Add to friends" icon={<AddIcon />} />
             </ButtonGroup>
