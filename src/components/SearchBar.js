@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { InputGroup, InputLeftElement, Input, InputRightElement, Kbd } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
+import AdminContext from '../contexts/AdminContext';
 
 function SearchBar() {
+
+    const { words, setDisplayWords } = useContext(AdminContext);
 
     useEffect(() => {
         window.addEventListener('keydown', focusSearchBar);
@@ -25,13 +28,19 @@ function SearchBar() {
         }
     }
 
+    const filterWord = (e) => {
+        const searchInput = e.target.value;
+
+        setDisplayWords(words.filter(word => word.word.includes(searchInput)))
+    }
+
     return (
         <InputGroup color="white">
             <InputLeftElement
                 pointerEvents="none"
                 children={<SearchIcon color="teal" />}
             />
-            <Input id="search-input" bg="white" shadow="md" color="teal" focusBorderColor="teal.500" type="text" placeholder="Search Word" />
+            <Input onChange={filterWord} id="search-input" bg="white" shadow="md" color="teal" focusBorderColor="teal.500" type="text" placeholder="Search Word" />
             <InputRightElement >
                 <Kbd bg="teal.100" borderColor="teal.300" color="teal.400">/</Kbd>
             </InputRightElement>

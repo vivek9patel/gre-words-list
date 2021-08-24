@@ -25,14 +25,13 @@ import AdminContext from '../contexts/AdminContext';
 
 function WordList() {
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const [words, setWords] = useState([])
     const [modalWord, setModalWord] = useState({});
     const [loading, setLoading] = useState(true);
     const [wordUrl, setWordUrl] = useState(null);
     const ref = firebase.firestore().collection('words')
     const toast = useToast();
 
-    const { isAdmin } = useContext(AdminContext);
+    const { isAdmin, displayWords, setWords } = useContext(AdminContext);
 
     useEffect(() => {
         ref.onSnapshot((snapshot) => {
@@ -105,7 +104,7 @@ function WordList() {
                     <>
                         <Tbody>
                             {
-                                words.map((wordObj, index) => {
+                                displayWords.map((wordObj, index) => {
                                     return <WordRow key={index} word={wordObj.word} meaning={wordObj.meaning[0]} description={wordObj.description[0]} openModal={() => {
                                         openModal(wordObj)
                                     }} />

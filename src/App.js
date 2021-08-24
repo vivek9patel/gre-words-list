@@ -9,6 +9,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 function App() {
   const [adminList, setAdminList] = useState([]);
+  const [words, setWords] = useState([])
+  const [displayWords, setDisplayWords] = useState([]);
   const { isAuthenticated, user } = useAuth0();
   const toast = useToast();
 
@@ -17,6 +19,10 @@ function App() {
       setAdminList(admins);
     });
   }, []);
+
+  useEffect(() => {
+    setDisplayWords(words);
+  }, [words])
 
   const checkAuthenticated = () => {
     if (!isAuthenticated) {
@@ -50,7 +56,7 @@ function App() {
   }
 
   return (
-    <AdminContext.Provider value={{ isAdmin, checkAuthenticated }}>
+    <AdminContext.Provider value={{ isAdmin, checkAuthenticated, words, setWords, displayWords, setDisplayWords }}>
       <Box mb="10" bg="cyan.500" w="100vw">
         <Header />
         <Flex mt="4" px="4" py="2" align="flex-end" justify="flex-end">
