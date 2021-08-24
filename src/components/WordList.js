@@ -10,6 +10,7 @@ import {
     ModalCloseButton,
     useDisclosure,
     Button,
+    useToast
 } from "@chakra-ui/react"
 import firebase from '../backend/Firestore';
 import WordRow from './WordRow'
@@ -20,13 +21,17 @@ function WordList() {
     const [modalWord, setModalWord] = useState({});
     const [loading, setLoading] = useState(true)
     const ref = firebase.firestore().collection('words')
+    const toast = useToast();
 
     useEffect(() => {
         ref.onSnapshot((snapshot) => {
             let wordList = []
             snapshot.docs.forEach((doc) => {
                 const wordObj = doc.data()
-                wordList.push(wordObj);
+                wordList.push({
+                    ...wordObj,
+                    id: doc.id,
+                });
             })
 
             // sort wordList by wordList.word
@@ -49,6 +54,17 @@ function WordList() {
     const openModal = (wordObj) => {
         setModalWord(wordObj);
         onOpen();
+    }
+
+    const deleteWord = (modalWord) => {
+        onClose();
+        ref.doc(modalWord.id).delete().then(() => {
+            toast({
+                title: `${modalWord.word} Deleted!`,
+                status: 'success',
+                isClosable: true,
+            })
+        })
     }
 
     return (
@@ -77,6 +93,9 @@ function WordList() {
                                     {modalWord.description}
                                 </ModalBody>
                                 <ModalFooter>
+                                    <Button colorScheme="red" mr={3} onClick={() => { deleteWord(modalWord) }}>
+                                        Delete Word
+                                    </Button>
                                     <Button colorScheme="blue" mr={3} onClick={onClose}>
                                         Close
                                     </Button>
