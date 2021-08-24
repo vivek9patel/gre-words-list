@@ -19,12 +19,14 @@ function AddWord() {
     const wordInput = useRef()
     const descInput = useRef()
     const meanInput = useRef()
+    const synoInput = useRef()
 
     const addWord = () => {
         // get values from input refs
         const word = wordInput.current.value.trim()
         const description = [descInput.current.value.trim()]
         const meaning = [meanInput.current.value.trim()]
+        const synonyms = synoInput.current.value.split(' ')
         const links = [null];
 
         if (word.length === 0) {
@@ -54,7 +56,8 @@ function AddWord() {
             word,
             description,
             meaning,
-            links
+            links,
+            synonyms
         })
             .then(() => {
                 toast({
@@ -89,18 +92,24 @@ function AddWord() {
                     <ModalHeader>Create your account</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody pb={6}>
-                        <FormControl>
+                        <FormControl isRequired>
                             <FormLabel>Word</FormLabel>
                             <Input ref={wordInput} placeholder="Enter Word" />
                         </FormControl>
 
-                        <FormControl mt={4}>
+                        <FormControl mt={4} isRequired>
                             <FormLabel>Meaning</FormLabel>
                             <Input ref={meanInput} placeholder="Enter word's meaning" />
                         </FormControl>
+
                         <FormControl mt={4}>
                             <FormLabel>Description</FormLabel>
                             <Input ref={descInput} placeholder="Enter word's description" />
+                        </FormControl>
+
+                        <FormControl mt={4}>
+                            <FormLabel>Synonyms</FormLabel>
+                            <Input ref={synoInput} placeholder="Enter synonyms seprated by spaces" />
                         </FormControl>
                     </ModalBody>
 

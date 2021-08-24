@@ -10,7 +10,12 @@ import {
     ModalCloseButton,
     useDisclosure,
     Button,
-    useToast
+    useToast,
+    Tag,
+    TagLabel,
+    HStack,
+    Text,
+    Tooltip
 } from "@chakra-ui/react"
 import firebase from '../backend/Firestore';
 import WordRow from './WordRow'
@@ -67,6 +72,10 @@ function WordList() {
         })
     }
 
+    const openWordInfo = word => {
+        window.open(`https://www.google.com/search?q=${word}+meaning`);
+    }
+
     return (
         <>
             {
@@ -90,13 +99,27 @@ function WordList() {
                                 <ModalHeader>{modalWord.word}</ModalHeader>
                                 <ModalCloseButton />
                                 <ModalBody>
-                                    {modalWord.description}
+                                    <HStack spacing={2}>
+                                        {
+                                            modalWord.synonyms && modalWord.synonyms.map((synonym, idx) => {
+                                                return (
+                                                    <Tooltip hasArrow placement="right" label={`click to view ${synonym} meaning`} bg="white" color="black">
+                                                        <Tag onClick={() => { openWordInfo(synonym) }} cursor="pointer" key={idx} size="md" variant="subtle" colorScheme="teal">
+                                                            <TagLabel fontSize="sm">{synonym}</TagLabel>
+                                                        </Tag>
+                                                    </Tooltip>
+                                                )
+                                            })
+                                        }
+                                    </HStack>
+                                    <Text mt="2" mb="1" fontSize="3xl"> {modalWord.meaning}</Text>
+                                    <Text color="gray.600" fontSize="xl"> {modalWord.description}</Text>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button colorScheme="red" mr={3} onClick={() => { deleteWord(modalWord) }}>
+                                    <Button size="sm" colorScheme="red" mr={3} onClick={() => { deleteWord(modalWord) }}>
                                         Delete Word
                                     </Button>
-                                    <Button colorScheme="blue" mr={3} onClick={onClose}>
+                                    <Button size="sm" colorScheme="blue" mr={3} onClick={onClose}>
                                         Close
                                     </Button>
                                 </ModalFooter>

@@ -4,6 +4,7 @@ import {
     Td,
     Link
 } from "@chakra-ui/react"
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 function WordRow({ word, meaning, description, openModal }) {
 
@@ -11,8 +12,8 @@ function WordRow({ word, meaning, description, openModal }) {
         <>
             <Tr px="10">
                 <Td>
-                    <Link onClick={openModal}>
-                        {word}
+                    <Link display="flex" alignItems="center" fontWeight="medium" color="teal.800" onClick={openModal}>
+                        {word} <ExternalLinkIcon mx="2px" />
                     </Link>
                 </Td>
                 <Td>{meaning}</Td>
