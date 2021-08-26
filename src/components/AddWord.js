@@ -35,7 +35,7 @@ function AddWord() {
         const word = wordInput.current.value.trim()
         const description = [descInput.current.value.trim()]
         const meaning = [meanInput.current.value.trim()]
-        const synonyms = synoInput.current.value.split(' ')
+        const synonyms = synoInput.current.value.trim().split(' ')
         const links = [null];
 
         if (word.length === 0) {

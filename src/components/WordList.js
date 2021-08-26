@@ -16,6 +16,15 @@ import {
     HStack,
     Text,
     Tooltip, FormControl, FormLabel, Input,
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+    PopoverHeader,
+    PopoverBody,
+    PopoverFooter,
+    PopoverArrow,
+    PopoverCloseButton,
+    ButtonGroup
 } from "@chakra-ui/react"
 import { AttachmentIcon } from '@chakra-ui/icons'
 import firebase from '../backend/Firestore';
@@ -29,6 +38,7 @@ function WordList() {
     const [loading, setLoading] = useState(true);
     const [wordUrl, setWordUrl] = useState(null);
     const [openEditModal, setEditModal] = useState(false);
+    const [isConformation, setIsConformation] = useState(false);
 
     const ref = firebase.firestore().collection('words')
     const toast = useToast();
@@ -76,6 +86,7 @@ function WordList() {
     }
 
     const deleteWord = (modalWord) => {
+        closeConfirmation();
         if (isAdmin()) {
             onClose();
             ref.doc(modalWord.id).delete().then(() => {
@@ -99,6 +110,14 @@ function WordList() {
     const editWord = () => {
         onClose();
         setEditModal(true);
+    }
+
+    const closeConfirmation = () => {
+        setIsConformation(false);
+    }
+
+    const openConfirmation = () => {
+        setIsConformation(true);
     }
 
     return (
@@ -130,26 +149,53 @@ function WordList() {
                                 </ModalHeader>
                                 <ModalCloseButton />
                                 <ModalBody>
-                                    {modalWord.synonyms && <HStack spacing={2}>
+                                    <HStack spacing={2}>
                                         {
-                                            modalWord.synonyms.map((synonym, idx) => {
-                                                return (
-                                                    <Tooltip key={idx} hasArrow placement="right" label={`click to view ${synonym} meaning`} bg="white" color="black">
-                                                        <Tag onClick={() => { openWordInfo(synonym) }} cursor="pointer" size="md" variant="subtle" colorScheme="teal">
-                                                            <TagLabel fontSize="sm">{synonym}</TagLabel>
-                                                        </Tag>
-                                                    </Tooltip>
-                                                )
+                                            modalWord.synonyms && modalWord.synonyms.map((synonym, idx) => {
+                                                if (synonym.trim().length > 0) {
+                                                    return (
+                                                        <Tooltip key={idx} hasArrow placement="right" label={`click to view ${synonym} meaning`} bg="white" color="black">
+                                                            <Tag onClick={() => { openWordInfo(synonym) }} cursor="pointer" size="md" variant="subtle" colorScheme="teal">
+                                                                <TagLabel fontSize="sm">{synonym}</TagLabel>
+                                                            </Tag>
+                                                        </Tooltip>
+                                                    )
+                                                }
+                                                else return <></>;
                                             })
                                         }
-                                    </HStack>}
+                                    </HStack>
                                     <Text mt="2" mb="1" fontSize="3xl"> {modalWord.meaning}</Text>
                                     <Text color="gray.600" fontSize="xl"> {modalWord.description}</Text>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button size="sm" colorScheme="red" variant="outline" mr={3} onClick={() => { deleteWord(modalWord) }}>
-                                        Delete Word
-                                    </Button>
+                                    <Popover
+                                        returnFocusOnClose={false}
+                                        isOpen={isConformation}
+                                        onClose={closeConfirmation}
+                                        placement="bottom"
+                                        closeOnBlur={false}
+                                    >
+                                        <PopoverTrigger>
+                                            <Button onClick={openConfirmation} size="sm" colorScheme="red" variant="outline" mr={3}>
+                                                Delete
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <PopoverHeader fontWeight="semibold">Confirmation</PopoverHeader>
+                                            <PopoverArrow />
+                                            <PopoverCloseButton />
+                                            <PopoverBody>
+                                                Are you sure you want to delete this word?
+                                            </PopoverBody>
+                                            <PopoverFooter d="flex" justifyContent="flex-end">
+                                                <ButtonGroup size="sm">
+                                                    <Button onClick={closeConfirmation} variant="outline">Cancel</Button>
+                                                    <Button onClick={() => { deleteWord(modalWord) }} colorScheme="red">Delete</Button>
+                                                </ButtonGroup>
+                                            </PopoverFooter>
+                                        </PopoverContent>
+                                    </Popover>
                                     <Button size="sm" colorScheme="yellow" mr={3} onClick={() => { editWord(modalWord) }}>
                                         Edit
                                     </Button>
@@ -201,10 +247,10 @@ function EditWord({ openEditModal, setEditModal, modalWord }) {
 
     const saveWord = async () => {
         const wordObj = {
-            word: modalWordValue["word"],
-            meaning: [modalWordValue["meaning"]],
-            description: [modalWordValue["description"]],
-            synonyms: modalWordValue["synonyms"].split(' '),
+            word: modalWordValue["word"].trim(),
+            meaning: [modalWordValue["meaning"].trim()],
+            description: [modalWordValue["description"].trim()],
+            synonyms: modalWordValue["synonyms"].trim().split(' '),
             links: [null]
         }
         closeModal();
