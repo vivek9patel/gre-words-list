@@ -282,7 +282,7 @@ function EditWord({ openEditModal, setEditModal, modalWord }) {
         >
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Add new word</ModalHeader>
+                <ModalHeader>Edit word</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody pb={6}>
                     <FormControl isRequired>
