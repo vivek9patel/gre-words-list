@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useRef } from 'react'
 import {
     Tbody,
     Modal,
@@ -15,7 +15,7 @@ import {
     TagLabel,
     HStack,
     Text,
-    Tooltip
+    Tooltip, FormControl, FormLabel, Input,
 } from "@chakra-ui/react"
 import { AttachmentIcon } from '@chakra-ui/icons'
 import firebase from '../backend/Firestore';
@@ -28,6 +28,8 @@ function WordList() {
     const [modalWord, setModalWord] = useState({});
     const [loading, setLoading] = useState(true);
     const [wordUrl, setWordUrl] = useState(null);
+    const [openEditModal, setEditModal] = useState(false);
+
     const ref = firebase.firestore().collection('words')
     const toast = useToast();
 
@@ -87,11 +89,16 @@ function WordList() {
     }
 
     const openWordInfo = word => {
-        window.open(`https://www.google.com/search?q=${word}+meaning`);
+        window.open(`https://www.google.com/search?q=define+${word}`);
     }
 
     const playWord = () => {
         window.open(wordUrl)
+    }
+
+    const editWord = () => {
+        onClose();
+        setEditModal(true);
     }
 
     return (
@@ -123,9 +130,9 @@ function WordList() {
                                 </ModalHeader>
                                 <ModalCloseButton />
                                 <ModalBody>
-                                    <HStack spacing={2}>
+                                    {modalWord.synonyms && <HStack spacing={2}>
                                         {
-                                            modalWord.synonyms && modalWord.synonyms.map((synonym, idx) => {
+                                            modalWord.synonyms.map((synonym, idx) => {
                                                 return (
                                                     <Tooltip key={idx} hasArrow placement="right" label={`click to view ${synonym} meaning`} bg="white" color="black">
                                                         <Tag onClick={() => { openWordInfo(synonym) }} cursor="pointer" size="md" variant="subtle" colorScheme="teal">
@@ -135,13 +142,16 @@ function WordList() {
                                                 )
                                             })
                                         }
-                                    </HStack>
+                                    </HStack>}
                                     <Text mt="2" mb="1" fontSize="3xl"> {modalWord.meaning}</Text>
                                     <Text color="gray.600" fontSize="xl"> {modalWord.description}</Text>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button size="sm" colorScheme="red" mr={3} onClick={() => { deleteWord(modalWord) }}>
+                                    <Button size="sm" colorScheme="red" variant="outline" mr={3} onClick={() => { deleteWord(modalWord) }}>
                                         Delete Word
+                                    </Button>
+                                    <Button size="sm" colorScheme="yellow" mr={3} onClick={() => { editWord(modalWord) }}>
+                                        Edit
                                     </Button>
                                     <Button size="sm" colorScheme="blue" mr={3} onClick={onClose}>
                                         Close
@@ -149,9 +159,115 @@ function WordList() {
                                 </ModalFooter>
                             </ModalContent>
                         </Modal>
+                        <EditWord openEditModal={openEditModal} setEditModal={setEditModal} modalWord={modalWord} />
                     </>
             }
         </>
+    )
+}
+
+function EditWord({ openEditModal, setEditModal, modalWord }) {
+    const { word, meaning, description, synonyms, id } = modalWord
+
+    const [modalWordValue, setModalWordValue] = useState({
+        "word": "",
+        "meaning": "",
+        "description": "",
+        "synonyms": "",
+        "id": null,
+    });
+
+    const wordInput = useRef()
+
+    const toast = useToast();
+
+    useEffect(() => {
+        setModalWordValue({
+            "word": (word ? word : ""),
+            "meaning": (meaning ? meaning[0] : ""),
+            "description": (description ? description[0] : ""),
+            "synonyms": (synonyms ? synonyms.join(" ") : ""),
+            "id": (id ? id : null),
+        })
+        // eslint-disable-next-line
+    }, [modalWord]);
+
+    const changeValue = (key, value) => {
+        setModalWordValue({
+            ...modalWordValue,
+            [key]: value,
+        })
+    }
+
+    const saveWord = async () => {
+        const wordObj = {
+            word: modalWordValue["word"],
+            meaning: [modalWordValue["meaning"]],
+            description: [modalWordValue["description"]],
+            synonyms: modalWordValue["synonyms"].split(' '),
+            links: [null]
+        }
+        closeModal();
+        await firebase.firestore().collection("words").doc(id).update(wordObj).then(() => {
+            toast({
+                title: `${wordObj.word} Updated!`,
+                status: 'success',
+                isClosable: true,
+            })
+        }).catch((err) => {
+            console.log(err)
+            toast({
+                title: `Failed to update ${wordObj.word}!`,
+                status: 'warning',
+                isClosable: true,
+            })
+        })
+    }
+
+    const closeModal = () => {
+        setEditModal(false);
+    }
+
+    return (
+        <Modal
+            initialFocusRef={wordInput}
+            isOpen={openEditModal}
+            onClose={closeModal}
+        >
+            <ModalOverlay />
+            <ModalContent>
+                <ModalHeader>Add new word</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody pb={6}>
+                    <FormControl isRequired>
+                        <FormLabel>Word</FormLabel>
+                        <Input onChange={(e) => { changeValue("word", e.target.value) }} value={modalWordValue["word"]} ref={wordInput} placeholder="Enter Word" />
+                    </FormControl>
+
+                    <FormControl mt={4} isRequired>
+                        <FormLabel>Meaning</FormLabel>
+                        <Input onChange={(e) => { changeValue("meaning", e.target.value) }} value={modalWordValue["meaning"]} placeholder="Enter word's meaning" />
+                    </FormControl>
+
+                    <FormControl mt={4}>
+                        <FormLabel>Description</FormLabel>
+                        <Input onChange={(e) => { changeValue("description", e.target.value) }} value={modalWordValue["description"]} placeholder="Enter word's description" />
+                    </FormControl>
+
+                    <FormControl mt={4}>
+                        <FormLabel>Synonyms</FormLabel>
+                        <Input onChange={(e) => { changeValue("synonyms", e.target.value) }} value={modalWordValue["synonyms"]} placeholder="Enter synonyms seprated by spaces" />
+                    </FormControl>
+                </ModalBody>
+
+                <ModalFooter>
+                    <Button onClick={saveWord} colorScheme="blue" mr={3}>
+                        Save
+                    </Button>
+                    <Button onClick={closeModal}>Cancel</Button>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
     )
 }
 
